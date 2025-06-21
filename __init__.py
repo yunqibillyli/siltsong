@@ -77,7 +77,7 @@ def plot_density_powernorm(density_cartesian, view_length, power = 0.2):
 
     plt.show()
 
-def radiative_transfer(view_length, inclination_degrees, resolution, density_spherical, density_cartesian, sca_cm_squared_per_g, ext_cm_squared_per_g, source_function, scattering_phase_function, depth, depth_substeps, distance_steps, distance_substeps, theta_steps, phi_steps, ms_count):
+def radiative_transfer(view_length, inclination_degrees, resolution, central_source, density_spherical, density_cartesian, sca_cm_squared_per_g, ext_cm_squared_per_g, source_function, scattering_phase_function, depth, depth_substeps, distance_steps, distance_substeps, theta_steps, phi_steps, ms_count):
 
     dr = view_length / 2 / distance_steps
     ds = dr / distance_substeps
@@ -128,7 +128,7 @@ def radiative_transfer(view_length, inclination_degrees, resolution, density_sph
         return I
 
     def compute_one_angle(i):
-        row = np.ones(distance_steps + 1)
+        row = np.ones(distance_steps + 1) * central_source
         theta = acos(1 - (i + 1) / theta_steps) # all photons between (theta - dtheta) to theta are sent to the angle theta except for theta = dtheta. 
     
         for j in range(1, distance_steps + 1):
@@ -189,7 +189,7 @@ def radiative_transfer(view_length, inclination_degrees, resolution, density_sph
     
     image_array[:, -1, :] *= 2
     cubical_array[:, -1, :] *= 2 # for the center row, we only calculated the top half, therefore we need to compensate
-    image_array[(resolution - 1) // 2, (resolution - 1) // 2, (depth - 1) // 2] += theta_steps * distance_steps * phi_steps * 2
+    image_array[(resolution - 1) // 2, (resolution - 1) // 2, (depth - 1) // 2] += central_source * theta_steps * distance_steps * phi_steps * 2
 
     def propagate_any(I, x0, y0, z0, random_x, random_y, random_z, random_steps):
 

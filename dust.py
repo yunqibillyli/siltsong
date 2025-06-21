@@ -3,6 +3,10 @@ from math import pi, cos
 from scipy.integrate import quad
 from scipy.interpolate import interp1d
 
+h   = 6.626e-27
+k_B = 1.381e-16
+c   = 2.998e10
+
 def mrn(grain_size_min = 5e-7, grain_size_max = 1e-4, exponent = -3.5, rho_gr = 3, sigma_rho_gr = 1.109, wavelength = 5.47e-5):
 
     cross_section_constant = 3 * (exponent + 4) / (4 * rho_gr * (grain_size_max ** (exponent + 4) - grain_size_min ** (exponent + 4))) # constant before P in formual A8 and A9 of Li et al. 2024
@@ -20,5 +24,9 @@ def mrn(grain_size_min = 5e-7, grain_size_max = 1e-4, exponent = -3.5, rho_gr = 
 def henyey_greenstein(angle, asymmetry_constant = 0.6): # constant taken from Draine 2011 page 242, Figure 21.4
     return 1 / (4 * pi) * (1 - asymmetry_constant * asymmetry_constant) / ((1 + asymmetry_constant * asymmetry_constant - 2 * asymmetry_constant * cos(angle)) ** (3 / 2))
 
-def thermal_emission(temperature = 0, wavelength = 5.47e-5): # to be implemented
-	return 0
+def thermal_emission(wavelength = 5.47e-5, temperature = 10):
+
+    # if h * c < 0.1 * wavelength * k_B * temperature: # Rayleigh–Jeans law
+        # return 2 * c * k_B * temperature / (wavelength ** 4)
+	
+    return (2 * h * c ** 2 / wavelength ** 5) / (np.exp(h * c / (wavelength * k_B * temperature)) - 1)
