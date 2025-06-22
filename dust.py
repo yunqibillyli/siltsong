@@ -21,7 +21,7 @@ def mrn(grain_size_min = 5e-7, grain_size_max = 1e-4, exponent = -3.5, rho_gr = 
 
     return sca_cm_squared_per_g, ext_cm_squared_per_g
 
-def henyey_greenstein(angle, asymmetry_constant = 0.6): # constant taken from Draine 2011 page 242, Figure 21.4
+def henyey_greenstein(angle, asymmetry_constant = 0.6): # asymmetry constant taken from Draine 2011 page 242, Figure 21.4
     return 1 / (4 * pi) * (1 - asymmetry_constant * asymmetry_constant) / ((1 + asymmetry_constant * asymmetry_constant - 2 * asymmetry_constant * cos(angle)) ** (3 / 2))
 
 def thermal_emission(wavelength = 5.47e-5, temperature = 10):

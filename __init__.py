@@ -189,7 +189,9 @@ def radiative_transfer(view_length, inclination_degrees, resolution, central_sou
     
     image_array[:, -1, :] *= 2
     cubical_array[:, -1, :] *= 2 # for the center row, we only calculated the top half, therefore we need to compensate
-    image_array[(resolution - 1) // 2, (resolution - 1) // 2, (depth - 1) // 2] += central_source * theta_steps * distance_steps * phi_steps * 2
+    image_array /= theta_steps * distance_steps * phi_steps * 2
+    cubical_array /= theta_steps * distance_steps * phi_steps * 2
+    image_array[(resolution - 1) // 2, (resolution - 1) // 2, (depth - 1) // 2] += central_source
 
     def propagate_any(I, x0, y0, z0, random_x, random_y, random_z, random_steps):
 
@@ -256,7 +258,7 @@ def radiative_transfer(view_length, inclination_degrees, resolution, central_sou
     
     ms_weight = resolution * ((resolution + 1) // 2) * depth / ms_count
     
-    sampled_positions = random.sample(all_positions, ms_count)
+    sampled_positions = random.sample(all_positions, int(ms_count))
 
     print("Tracing multiple scattered photons: ")
     
