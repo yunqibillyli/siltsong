@@ -119,7 +119,7 @@ def radiative_transfer(view_length, inclination_degrees, resolution, central_sou
 
         for i in range(distance_substeps):
     
-            k_v = (ext_cm_squared_per_g + sca_cm_squared_per_g) * density_spherical(r + i * ds, theta) # attenuation coefficient, units: cm^-1
+            k_v = ext_cm_squared_per_g * density_spherical(r + i * ds, theta) # attenuation coefficient, units: cm^-1
             j_v = source_function * k_v
 
             dI = -I * k_v * ds + j_v * ds
@@ -188,9 +188,9 @@ def radiative_transfer(view_length, inclination_degrees, resolution, central_sou
                 send_photon(i, j, phi)
     
     image_array[:, -1, :] *= 2
-    cubical_array[:, -1, :] *= 2 # for the center row, we only calculated the top half, therefore we need to compensate
-    image_array /= theta_steps * distance_steps * phi_steps * 2
-    cubical_array /= theta_steps * distance_steps * phi_steps * 2
+    cubical_array[:, -1, :] *= 2 # for the center row, we only calculated the top half of the directions
+    image_array *= (pi / (2 * theta_steps)) * dphi
+    cubical_array *= (pi / (2 * theta_steps)) * dphi
     image_array[(resolution - 1) // 2, (resolution - 1) // 2, (depth - 1) // 2] += central_source
 
     def propagate_any(I, x0, y0, z0, random_x, random_y, random_z, random_steps):
@@ -206,7 +206,7 @@ def radiative_transfer(view_length, inclination_degrees, resolution, central_sou
             if x ** 2 + y ** 2 + z ** 2 >= view_length ** 2:
                 return 0, 0, 0, 0 # photon escapes
         
-            k_v = (ext_cm_squared_per_g + sca_cm_squared_per_g) * density_cartesian(x, y, z) # attenuation coefficient, units: cm^-1
+            k_v = ext_cm_squared_per_g * density_cartesian(x, y, z) # attenuation coefficient, units: cm^-1
             j_v = source_function * k_v
     
             dI = -I * k_v * ds_depth + j_v * ds_depth
@@ -273,7 +273,7 @@ def radiative_transfer(view_length, inclination_degrees, resolution, central_sou
             
             x, y, z = observer_to_cartesian(u, v, w - i * ds_depth)
         
-            k_v = (ext_cm_squared_per_g + sca_cm_squared_per_g) * density_cartesian(x, y, z) # attenuation coefficient, units: cm^-1
+            k_v = ext_cm_squared_per_g * density_cartesian(x, y, z) # attenuation coefficient, units: cm^-1
             j_v = source_function * k_v
     
             dI = -I * k_v * ds_depth + j_v * ds_depth
