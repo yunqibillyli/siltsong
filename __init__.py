@@ -258,7 +258,7 @@ def radiative_transfer(view_length, inclination_degrees, resolution, central_sou
     
     ms_weight = resolution * ((resolution + 1) // 2) * depth / ms_count
 
-    weight = ms_weight * 4 * pi * view_length / ds_depth / ds_depth
+    weight = ms_weight * 2 * pi * view_length / ds_depth
     
     sampled_positions = random.sample(all_positions, int(ms_count))
 
