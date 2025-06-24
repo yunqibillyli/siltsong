@@ -129,7 +129,7 @@ def radiative_transfer(view_length, inclination_degrees, resolution, central_sou
 
     def compute_one_angle(i):
         row = np.ones(distance_steps + 1) * central_source
-        theta = acos(1 - (i + 1) / theta_steps) # all photons between (theta - dtheta) to theta are sent to the angle theta except for theta = dtheta. 
+        theta = (i + 1) * pi / 2 / theta_steps # acos(1 - (i + 1) / theta_steps) if we sample isotropically
     
         for j in range(1, distance_steps + 1):
             r = j * dr
@@ -151,7 +151,7 @@ def radiative_transfer(view_length, inclination_degrees, resolution, central_sou
     def send_photon(i, j, phi):
     
         r = j * dr
-        theta = acos(1 - (i + 1) / theta_steps)
+        theta = (i + 1) * pi / 2 / theta_steps
     
         intensity = spherical_array[i, j]
     
@@ -161,12 +161,12 @@ def radiative_transfer(view_length, inclination_degrees, resolution, central_sou
     
         scattering_angle = vector_angle(u, v, w, 0, 0, 1)
     
-        if px >= 0 and px < resolution and py >= 0 and py <= (resolution + 1) // 2:
+        if px >= 0 and px < resolution and py >= 0 and py < (resolution + 1) // 2:
             increment = intensity * (1 - exp(-dr * sca_cm_squared_per_g * density_spherical(r, theta))) # now that the photon arrived, calculate the chance to scatter between r + dr
             cubical_array[px, py, d] += increment # reserved for further scattering
             image_array[px, py, d] += increment * scattering_phase_function(scattering_angle) # peel-off amount
     
-        if i == theta_steps:
+        if i == theta_steps - 1:
             return # if theta is pi / 2, don't need to send mirror photon
     
         x, y, z = spherical_to_cartesian(r, pi - theta, phi)
@@ -175,7 +175,7 @@ def radiative_transfer(view_length, inclination_degrees, resolution, central_sou
     
         scattering_angle = vector_angle(u, v, w, 0, 0, 1)
     
-        if px >= 0 and px < resolution and py >= 0 and py <= (resolution + 1) // 2:
+        if px >= 0 and px < resolution and py >= 0 and py < (resolution + 1) // 2:
             increment = intensity * (1 - exp(-dr * sca_cm_squared_per_g * density_spherical(r, theta)))
             cubical_array[px, py, d] += increment
             image_array[px, py, d] += increment * scattering_phase_function(scattering_angle)
@@ -257,6 +257,8 @@ def radiative_transfer(view_length, inclination_degrees, resolution, central_sou
     ]
     
     ms_weight = resolution * ((resolution + 1) // 2) * depth / ms_count
+
+    weight = ms_weight * 4 * pi * view_length / ds_depth / ds_depth
     
     sampled_positions = random.sample(all_positions, int(ms_count))
 
