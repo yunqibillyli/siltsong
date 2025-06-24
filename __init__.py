@@ -36,7 +36,7 @@ def vector_angle(x1, y1, z1, x2, y2, z2):
     factor = max(-1, min(1, factor))
     return acos(factor)
 
-def plot_density_powernorm(density_cartesian, view_length, power = 0.2):
+def plot_density_powernorm(density_cartesian, view_length, power = 0.2, units = 'cgs'):
 
     view_size = view_length / 2
 
@@ -54,9 +54,6 @@ def plot_density_powernorm(density_cartesian, view_length, power = 0.2):
 
     im = ax.imshow(density_value, origin = 'lower', extent = [-view_size, view_size, -view_size, view_size], norm = PowerNorm(power), cmap = 'afmhot', interpolation = 'bilinear', aspect = 'equal')
 
-    ax.set_xlabel("distance (cm)", fontsize = 25)
-    ax.set_ylabel("distance (cm)", fontsize = 25)
-
     formatter = ticker.ScalarFormatter(useMathText = True)
     formatter.set_powerlimits((0,0))
     ax.xaxis.set_major_formatter(formatter)
@@ -65,7 +62,13 @@ def plot_density_powernorm(density_cartesian, view_length, power = 0.2):
     ax.yaxis.get_offset_text().set_fontsize(25)
 
     cbar = fig.colorbar(im, ax = ax)
-    cbar.set_label('Dust Density (g/cm$^3$)', fontsize = 25)
+
+    if units == 'cgs':
+
+        ax.set_xlabel("distance (cm)", fontsize = 25)
+        ax.set_ylabel("distance (cm)", fontsize = 25)
+        cbar.set_label('Dust Density (g/cm$^3$)', fontsize = 25)
+        
     cbar.ax.tick_params(labelsize = 25)
     cbar_formatter = ticker.ScalarFormatter(useMathText = True)
     cbar_formatter.set_powerlimits((0, 0))
@@ -180,7 +183,7 @@ def radiative_transfer(view_length, inclination_degrees, resolution, central_sou
             cubical_array[px, py, d] += increment
             image_array[px, py, d] += increment * scattering_phase_function(scattering_angle)
 
-    print("Sending isotropic photons from central star(s): ")
+    print("Sending photons from the central source(s): ")
     
     for i in tqdm(range(theta_steps)):
         for j in range(1, distance_steps + 1):
