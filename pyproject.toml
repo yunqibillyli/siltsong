@@ -27,9 +27,9 @@ classifiers = [
 dependencies = []
 
 [project.urls]
-Documentation = "https://github.com/Yun Qi Li/siltsong#readme"
-Issues = "https://github.com/Yun Qi Li/siltsong/issues"
-Source = "https://github.com/Yun Qi Li/siltsong"
+Documentation = "https://github.com/yunqibillyli/siltsong#readme"
+Issues = "https://github.com/yunqibillyli/siltsong/issues"
+Source = "https://github.com/yunqibillyli/siltsong"
 
 [tool.hatch.version]
 path = "src/siltsong/__about__.py"
