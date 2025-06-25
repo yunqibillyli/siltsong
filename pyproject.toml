@@ -4,7 +4,7 @@ build-backend = "hatchling.build"
 
 [project]
 name = "siltsong"
-dynamic = ["version"]
+version = "0.0.4"
 description = 'A multiple-scattering radiative transfer code for forward modeling PPNe, PNe, and more'
 readme = "README.md"
 requires-python = ">=3.8"
