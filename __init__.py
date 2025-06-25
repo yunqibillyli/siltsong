@@ -180,20 +180,14 @@ def plot_density_lognorm(density_cartesian, view_length, vmin = None, vmax = Non
 
     plt.show()
 
-def radiative_transfer(view_length, inclination_degrees, resolution, 
-                       central_source, 
-                       density_spherical, density_cartesian, 
-                       sca_cm_squared_per_g, ext_cm_squared_per_g, source_function, scattering_phase_function, 
-                       depth, depth_substeps, distance_steps, distance_substeps, theta_steps, phi_steps, ms_count, 
-                       axisymmetry = True, reflection_symmetry = True
-                      ):
+def radiative_transfer(view_length, inclination_degrees, resolution, central_source, density_spherical, density_cartesian, sca_cm_squared_per_g, ext_cm_squared_per_g, source_function, scattering_phase_function, depth, depth_substeps, distance_steps, distance_substeps, theta_steps, phi_steps, ms_count, axisymmetry = False, reflection_symmetry = False, include_central_source_self = True):
 
     if isinstance(density_spherical, Callable):
         density_spherical_list = [density_spherical]
     elif isinstance(density_spherical, list) and all(isinstance(d, Callable) for d in density_spherical):
         density_spherical_list = density_spherical
 
-    if len(density_spherical_list) == 1 and axisymmetry and reflection_symmetry:
+    if len(density_spherical_list) == 1 and axisymmetry and reflection_symmetry and include_central_source_self:
 
         image = radiative_transfer_v1(view_length, inclination_degrees, resolution, 
                        central_source, 
@@ -202,47 +196,147 @@ def radiative_transfer(view_length, inclination_degrees, resolution,
                        depth, depth_substeps, distance_steps, distance_substeps, theta_steps, phi_steps, ms_count)
         return image
 
-    if axisymmetry and reflection_symmetry:
-        
-        image = radiative_transfer_axisymmetric_reflection_symmetric(view_length, inclination_degrees, resolution, 
-                       central_source, 
-                       density_spherical, density_cartesian, 
-                       sca_cm_squared_per_g, ext_cm_squared_per_g, source_function, scattering_phase_function, 
-                       depth, depth_substeps, distance_steps, distance_substeps, theta_steps, phi_steps, ms_count)
-        return image
-
-    elif axisymmetry and not reflection_symmetry:
-        
-        image = radiative_transfer_axisymmetric_not_reflection_symmetric(view_length, inclination_degrees, resolution, 
-                       central_source, 
-                       density_spherical, density_cartesian, 
-                       sca_cm_squared_per_g, ext_cm_squared_per_g, source_function, scattering_phase_function, 
-                       depth, depth_substeps, distance_steps, distance_substeps, theta_steps, phi_steps, ms_count)
-        return image
-
-    elif not axisymmetry and reflection_symmetry:
-        
-        image = radiative_transfer_not_axisymmetric_reflection_symmetric(view_length, inclination_degrees, resolution, 
-                       central_source, 
-                       density_spherical, density_cartesian, 
-                       sca_cm_squared_per_g, ext_cm_squared_per_g, source_function, scattering_phase_function, 
-                       depth, depth_substeps, distance_steps, distance_substeps, theta_steps, phi_steps, ms_count)
-        return image
-
     else:
 
-        image = radiative_transfer_general(view_length, inclination_degrees, resolution, 
-                       central_source, 
-                       density_spherical, density_cartesian, 
-                       sca_cm_squared_per_g, ext_cm_squared_per_g, source_function, scattering_phase_function, 
-                       depth, depth_substeps, distance_steps, distance_substeps, theta_steps, phi_steps, ms_count)
-        return image
+        if axisymmetry and reflection_symmetry:
+                
+            image = radiative_transfer_axisymmetric_reflection_symmetric(view_length, inclination_degrees, resolution, 
+                            central_source, 
+                            density_spherical, density_cartesian, 
+                            sca_cm_squared_per_g, ext_cm_squared_per_g, source_function, scattering_phase_function, 
+                            depth, depth_substeps, distance_steps, distance_substeps, theta_steps, phi_steps, ms_count, include_central_source_self)
+            return image
 
-def radiative_transfer_axisymmetric_reflection_symmetric(view_length, inclination_degrees, resolution, 
-                       central_source, 
-                       density_spherical, density_cartesian, 
-                       sca_cm_squared_per_g, ext_cm_squared_per_g, source_function, scattering_phase_function, 
-                       depth, depth_substeps, distance_steps, distance_substeps, theta_steps, phi_steps, ms_count):
+        elif axisymmetry and not reflection_symmetry:
+                
+            image = radiative_transfer_axisymmetric_not_reflection_symmetric(view_length, inclination_degrees, resolution, 
+                            central_source, 
+                            density_spherical, density_cartesian, 
+                            sca_cm_squared_per_g, ext_cm_squared_per_g, source_function, scattering_phase_function, 
+                            depth, depth_substeps, distance_steps, distance_substeps, theta_steps, phi_steps, ms_count, include_central_source_self)
+            return image
+
+        elif not axisymmetry and reflection_symmetry:
+                
+            image = radiative_transfer_not_axisymmetric_reflection_symmetric(view_length, inclination_degrees, resolution, 
+                            central_source, 
+                            density_spherical, density_cartesian, 
+                            sca_cm_squared_per_g, ext_cm_squared_per_g, source_function, scattering_phase_function, 
+                            depth, depth_substeps, distance_steps, distance_substeps, theta_steps, phi_steps, ms_count, include_central_source_self)
+            return image
+
+        else:
+
+            image = radiative_transfer_general(view_length, inclination_degrees, resolution, 
+                            central_source, 
+                            density_spherical, density_cartesian, 
+                            sca_cm_squared_per_g, ext_cm_squared_per_g, source_function, scattering_phase_function, 
+                            depth, depth_substeps, distance_steps, distance_substeps, theta_steps, phi_steps, ms_count, include_central_source_self)
+            return image
+
+    if False: # abandoned separating components feature, not useful since gas/dust/components add to the extinction of eachother's emissions
+
+        if isinstance(density_spherical, Callable):
+            density_spherical_list = [density_spherical]
+        elif isinstance(density_spherical, list) and all(isinstance(d, Callable) for d in density_spherical):
+            density_spherical_list = density_spherical
+        else:
+            raise TypeError("density_spherical must be a callable or a list of callables")
+
+        if isinstance(density_cartesian, Callable):
+            density_cartesian_list = [density_cartesian]
+        elif isinstance(density_cartesian, list) and all(isinstance(d, Callable) for d in density_cartesian):
+            density_cartesian_list = density_cartesian
+        else:
+            raise TypeError("density_cartesian must be a callable or a list of callables")
+
+        if isinstance(sca_cm_squared_per_g, (int, float)):
+            sca_list = [sca_cm_squared_per_g]
+        elif isinstance(sca_cm_squared_per_g, list) and all(isinstance(s, (int, float)) for s in sca_cm_squared_per_g):
+            sca_list = sca_cm_squared_per_g
+        else:
+            raise TypeError("sca_cm_squared_per_g must be a number or a list of numbers")
+
+        if isinstance(ext_cm_squared_per_g, (int, float)):
+            ext_list = [ext_cm_squared_per_g]
+        elif isinstance(ext_cm_squared_per_g, list) and all(isinstance(s, (int, float)) for s in ext_cm_squared_per_g):
+            ext_list = ext_cm_squared_per_g
+        else:
+            raise TypeError("ext_cm_squared_per_g must be a number or a list of numbers")
+
+        if isinstance(source_function, (int, float)):
+            source_function_list = [source_function]
+        elif isinstance(source_function, list) and all(isinstance(s, (int, float)) for s in source_function):
+            source_function_list = source_function
+        else:
+            raise TypeError("source_function must be a number or a list of numbers")
+
+        if isinstance(scattering_phase_function, Callable):
+            scattering_phase_function_list = [scattering_phase_function]
+        elif isinstance(scattering_phase_function, list) and all(isinstance(d, Callable) for d in scattering_phase_function):
+            scattering_phase_function_list = scattering_phase_function
+        else:
+            raise TypeError("scattering_phase_function must be a callable or a list of callables")
+
+        list_lengths = [len(density_spherical_list), len(density_cartesian_list), len(sca_list), len(ext_list), len(source_function_list), len(scattering_phase_function_list),]
+
+        if len(set(list_lengths)) != 1:
+            raise ValueError(
+                f"All parameter lists must have the same length, but got lengths: "
+                f"density_spherical={len(density_spherical_list)}, "
+                f"density_cartesian={len(density_cartesian_list)}, "
+                f"sca_cm_squared_per_g={len(sca_list)}, "
+                f"ext_cm_squared_per_g={len(ext_list)}, "
+                f"source_function={len(source_function_list)}, "
+                f"scattering_phase_function={len(scattering_phase_function_list)}."
+            )
+
+        list_length = list_lengths[0]
+        images = []
+
+        for i in range(list_length):
+
+            if axisymmetry and reflection_symmetry:
+                    
+                current_image = radiative_transfer_axisymmetric_reflection_symmetric(view_length, inclination_degrees, resolution, 
+                                central_source, 
+                                density_spherical, density_cartesian, 
+                                sca_cm_squared_per_g, ext_cm_squared_per_g, source_function, scattering_phase_function, 
+                                depth, depth_substeps, distance_steps, distance_substeps, theta_steps, phi_steps, ms_count, include_central_source_self)
+
+            elif axisymmetry and not reflection_symmetry:
+                    
+                current_image = radiative_transfer_axisymmetric_not_reflection_symmetric(view_length, inclination_degrees, resolution, 
+                                central_source, 
+                                density_spherical, density_cartesian, 
+                                sca_cm_squared_per_g, ext_cm_squared_per_g, source_function, scattering_phase_function, 
+                                depth, depth_substeps, distance_steps, distance_substeps, theta_steps, phi_steps, ms_count, include_central_source_self)
+
+            elif not axisymmetry and reflection_symmetry:
+                    
+                current_image = radiative_transfer_not_axisymmetric_reflection_symmetric(view_length, inclination_degrees, resolution, 
+                                central_source, 
+                                density_spherical, density_cartesian, 
+                                sca_cm_squared_per_g, ext_cm_squared_per_g, source_function, scattering_phase_function, 
+                                depth, depth_substeps, distance_steps, distance_substeps, theta_steps, phi_steps, ms_count, include_central_source_self)
+
+            else:
+
+                current_image = radiative_transfer_general(view_length, inclination_degrees, resolution, 
+                                central_source, 
+                                density_spherical, density_cartesian, 
+                                sca_cm_squared_per_g, ext_cm_squared_per_g, source_function, scattering_phase_function, 
+                                depth, depth_substeps, distance_steps, distance_substeps, theta_steps, phi_steps, ms_count, include_central_source_self)
+
+            images.append(current_image)
+
+        images = np.array(images)
+        image_all = np.sum(images, axis = 0)
+        images = np.insert(images, 0, image_all, axis = 0)
+
+        return images
+
+def radiative_transfer_axisymmetric_reflection_symmetric(view_length, inclination_degrees, resolution, central_source, density_spherical, density_cartesian, sca_cm_squared_per_g, ext_cm_squared_per_g, source_function, scattering_phase_function, depth, depth_substeps, distance_steps, distance_substeps, theta_steps, phi_steps, ms_count, include_central_source_self):
 
     if isinstance(density_spherical, Callable):
         density_spherical_list = [density_spherical]
@@ -341,10 +435,10 @@ def radiative_transfer_axisymmetric_reflection_symmetric(view_length, inclinatio
 
             I_cur = I
 
-            for ext_cm_squared_per_g, density_spherical, source_function in zip(ext_list, density_spherical_list, source_function_list):
+            for ext_cm_squared_per_g, density_spherical, source_function_cur in zip(ext_list, density_spherical_list, source_function_list):
     
                 k_v = ext_cm_squared_per_g * density_spherical(r + i * ds, theta) # attenuation coefficient, units: cm^-1
-                j_v = source_function * k_v
+                j_v = source_function_cur * k_v
 
                 dI = -I_cur * k_v * ds + j_v * ds
                 I = I + dI
@@ -367,6 +461,8 @@ def radiative_transfer_axisymmetric_reflection_symmetric(view_length, inclinatio
             for i in range(theta_steps)
         )
         return np.array(results)
+
+    print("Sending photons from the central source(s). ")
     
     spherical_array = compute_spherical()
     cubical_array = np.zeros((resolution, (resolution + 1) // 2, depth))
@@ -410,7 +506,7 @@ def radiative_transfer_axisymmetric_reflection_symmetric(view_length, inclinatio
                 cubical_array[px, py, d] += increment
                 image_array[px, py, d] += increment * scattering_phase_function(scattering_angle)
 
-    print("Sending photons from the central source(s): ")
+    print("Tracing single scattered photons: ")
     
     for i in tqdm(range(theta_steps)):
         for j in range(1, distance_steps + 1):
@@ -421,7 +517,9 @@ def radiative_transfer_axisymmetric_reflection_symmetric(view_length, inclinatio
     cubical_array[:, -1, :] *= 2 # for the center row, we only calculated the top half of the directions
     image_array *= (pi / (2 * theta_steps)) * dphi
     cubical_array *= (pi / (2 * theta_steps)) * dphi
-    image_array[(resolution - 1) // 2, (resolution - 1) // 2, (depth - 1) // 2] += central_source
+
+    if include_central_source_self: 
+        image_array[(resolution - 1) // 2, (resolution - 1) // 2, (depth - 1) // 2] += central_source
 
     def propagate_any(I, x0, y0, z0, random_x, random_y, random_z, random_steps):
 
@@ -438,10 +536,10 @@ def radiative_transfer_axisymmetric_reflection_symmetric(view_length, inclinatio
             if x ** 2 + y ** 2 + z ** 2 >= view_length ** 2:
                 return 0, 0, 0, 0 # photon escapes
 
-            for ext_cm_squared_per_g, density_cartesian, source_funcion in zip(ext_list, density_cartesian_list, source_function_list):
+            for ext_cm_squared_per_g, density_cartesian, source_function_cur in zip(ext_list, density_cartesian_list, source_function_list):
         
                 k_v = ext_cm_squared_per_g * density_cartesian(x, y, z) # attenuation coefficient, units: cm^-1
-                j_v = source_function * k_v
+                j_v = source_function_cur * k_v
         
                 dI = -I_cur * k_v * ds_depth + j_v * ds_depth
                 I = I + dI
@@ -467,7 +565,8 @@ def radiative_transfer_axisymmetric_reflection_symmetric(view_length, inclinatio
             scattering_angle = vector_angle(x0, y0, z0, random_x, random_y, random_z)
 
             if len(scattering_phase_function_list) == 1:
-                
+
+                scattering_phase_function = scattering_phase_function_list[0]
                 I = I * scattering_phase_function(scattering_angle)
 
             else: # compute a weighted average of the scattering phase functions
@@ -545,10 +644,10 @@ def radiative_transfer_axisymmetric_reflection_symmetric(view_length, inclinatio
             
             x, y, z = observer_to_cartesian(u, v, w - i * ds_depth)
 
-            for ext_cm_squared_per_g, density_cartesian, source_funcion in zip(ext_list, density_cartesian_list, source_function_list):
+            for ext_cm_squared_per_g, density_cartesian, source_function_cur in zip(ext_list, density_cartesian_list, source_function_list):
         
                 k_v = ext_cm_squared_per_g * density_cartesian(x, y, z) # attenuation coefficient, units: cm^-1
-                j_v = source_function * k_v
+                j_v = source_function_cur * k_v
     
                 dI = -I_cur * k_v * ds_depth + j_v * ds_depth
                 I = I + dI
@@ -566,11 +665,7 @@ def radiative_transfer_axisymmetric_reflection_symmetric(view_length, inclinatio
 
     return image
 
-def radiative_transfer_axisymmetric_not_reflection_symmetric(view_length, inclination_degrees, resolution, 
-                       central_source, 
-                       density_spherical, density_cartesian, 
-                       sca_cm_squared_per_g, ext_cm_squared_per_g, source_function, scattering_phase_function, 
-                       depth, depth_substeps, distance_steps, distance_substeps, theta_steps, phi_steps, ms_count):
+def radiative_transfer_axisymmetric_not_reflection_symmetric(view_length, inclination_degrees, resolution, central_source, density_spherical, density_cartesian, sca_cm_squared_per_g, ext_cm_squared_per_g, source_function, scattering_phase_function, depth, depth_substeps, distance_steps, distance_substeps, theta_steps, phi_steps, ms_count, include_central_source_self):
 
     if isinstance(density_spherical, Callable):
         density_spherical_list = [density_spherical]
@@ -670,10 +765,10 @@ def radiative_transfer_axisymmetric_not_reflection_symmetric(view_length, inclin
 
             I_cur = I
 
-            for ext_cm_squared_per_g, density_spherical, source_function in zip(ext_list, density_spherical_list, source_function_list):
+            for ext_cm_squared_per_g, density_spherical, source_function_cur in zip(ext_list, density_spherical_list, source_function_list):
     
                 k_v = ext_cm_squared_per_g * density_spherical(r + i * ds, theta) # attenuation coefficient, units: cm^-1
-                j_v = source_function * k_v
+                j_v = source_function_cur * k_v
 
                 dI = -I_cur * k_v * ds + j_v * ds
                 I = I + dI
@@ -696,6 +791,8 @@ def radiative_transfer_axisymmetric_not_reflection_symmetric(view_length, inclin
             for i in range(theta_steps)
         )
         return np.array(results)
+
+    print("Sending photons from the central source(s). ")
     
     spherical_array = compute_spherical()
     cubical_array = np.zeros((resolution, (resolution + 1) // 2, depth))
@@ -722,7 +819,7 @@ def radiative_transfer_axisymmetric_not_reflection_symmetric(view_length, inclin
                 cubical_array[px, py, d] += increment # reserved for further scattering
                 image_array[px, py, d] += increment * scattering_phase_function(scattering_angle) # peel-off amount
 
-    print("Sending photons from the central source(s): ")
+    print("Tracing single scattered photons: ")
     
     for i in tqdm(range(theta_steps)):
         for j in range(1, distance_steps + 1):
@@ -733,7 +830,9 @@ def radiative_transfer_axisymmetric_not_reflection_symmetric(view_length, inclin
     cubical_array[:, -1, :] *= 2 # for the center row, we only calculated the top half of the directions
     image_array *= (pi / theta_steps) * dphi
     cubical_array *= (pi / theta_steps) * dphi
-    image_array[(resolution - 1) // 2, (resolution - 1) // 2, (depth - 1) // 2] += central_source
+
+    if include_central_source_self: 
+        image_array[(resolution - 1) // 2, (resolution - 1) // 2, (depth - 1) // 2] += central_source
 
     def propagate_any(I, x0, y0, z0, random_x, random_y, random_z, random_steps):
 
@@ -750,10 +849,10 @@ def radiative_transfer_axisymmetric_not_reflection_symmetric(view_length, inclin
             if x ** 2 + y ** 2 + z ** 2 >= view_length ** 2:
                 return 0, 0, 0, 0 # photon escapes
 
-            for ext_cm_squared_per_g, density_cartesian, source_funcion in zip(ext_list, density_cartesian_list, source_function_list):
+            for ext_cm_squared_per_g, density_cartesian, source_function_cur in zip(ext_list, density_cartesian_list, source_function_list):
         
                 k_v = ext_cm_squared_per_g * density_cartesian(x, y, z) # attenuation coefficient, units: cm^-1
-                j_v = source_function * k_v
+                j_v = source_function_cur * k_v
         
                 dI = -I_cur * k_v * ds_depth + j_v * ds_depth
                 I = I + dI
@@ -779,7 +878,8 @@ def radiative_transfer_axisymmetric_not_reflection_symmetric(view_length, inclin
             scattering_angle = vector_angle(x0, y0, z0, random_x, random_y, random_z)
 
             if len(scattering_phase_function_list) == 1:
-                
+
+                scattering_phase_function = scattering_phase_function_list[0]
                 I = I * scattering_phase_function(scattering_angle)
 
             else: # compute a weighted average of the scattering phase functions
@@ -857,10 +957,10 @@ def radiative_transfer_axisymmetric_not_reflection_symmetric(view_length, inclin
             
             x, y, z = observer_to_cartesian(u, v, w - i * ds_depth)
 
-            for ext_cm_squared_per_g, density_cartesian, source_funcion in zip(ext_list, density_cartesian_list, source_function_list):
+            for ext_cm_squared_per_g, density_cartesian, source_function_cur in zip(ext_list, density_cartesian_list, source_function_list):
         
                 k_v = ext_cm_squared_per_g * density_cartesian(x, y, z) # attenuation coefficient, units: cm^-1
-                j_v = source_function * k_v
+                j_v = source_function_cur * k_v
     
                 dI = -I_cur * k_v * ds_depth + j_v * ds_depth
                 I = I + dI
@@ -878,11 +978,7 @@ def radiative_transfer_axisymmetric_not_reflection_symmetric(view_length, inclin
 
     return image
 
-def radiative_transfer_not_axisymmetric_reflection_symmetric(view_length, inclination_degrees, resolution, 
-                       central_source, 
-                       density_spherical, density_cartesian, 
-                       sca_cm_squared_per_g, ext_cm_squared_per_g, source_function, scattering_phase_function, 
-                       depth, depth_substeps, distance_steps, distance_substeps, theta_steps, phi_steps, ms_count):
+def radiative_transfer_not_axisymmetric_reflection_symmetric(view_length, inclination_degrees, resolution, central_source, density_spherical, density_cartesian, sca_cm_squared_per_g, ext_cm_squared_per_g, source_function, scattering_phase_function, depth, depth_substeps, distance_steps, distance_substeps, theta_steps, phi_steps, ms_count, include_central_source_self):
 
     if isinstance(density_spherical, Callable):
         density_spherical_list = [density_spherical]
@@ -983,10 +1079,10 @@ def radiative_transfer_not_axisymmetric_reflection_symmetric(view_length, inclin
 
             I_cur = I
 
-            for ext_cm_squared_per_g, density_spherical, source_function in zip(ext_list, density_spherical_list, source_function_list):
+            for ext_cm_squared_per_g, density_spherical, source_function_cur in zip(ext_list, density_spherical_list, source_function_list):
     
                 k_v = ext_cm_squared_per_g * density_spherical(r + i * ds, theta, phi) # attenuation coefficient, units: cm^-1
-                j_v = source_function * k_v
+                j_v = source_function_cur * k_v
 
                 dI = -I_cur * k_v * ds + j_v * ds
                 I = I + dI
@@ -1011,6 +1107,8 @@ def radiative_transfer_not_axisymmetric_reflection_symmetric(view_length, inclin
             for j in range(phi_steps)
         )
         return np.array(results).reshape(theta_steps, phi_steps, distance_steps + 1)
+
+    print("Sending photons from the central source(s). ")
     
     spherical_array = compute_spherical()
     cubical_array = np.zeros((resolution, resolution, depth))
@@ -1030,7 +1128,7 @@ def radiative_transfer_not_axisymmetric_reflection_symmetric(view_length, inclin
     
         scattering_angle = vector_angle(u, v, w, 0, 0, 1)
     
-        if px >= 0 and px < resolution and py >= 0 and py < (resolution + 1) // 2:
+        if px >= 0 and px < resolution and py >= 0 and py < resolution:
 
             for sca_cm_squared_per_g, density_spherical, scattering_phase_function in zip(sca_list, density_spherical_list, scattering_phase_function_list):
                 
@@ -1047,7 +1145,7 @@ def radiative_transfer_not_axisymmetric_reflection_symmetric(view_length, inclin
     
         scattering_angle = vector_angle(u, v, w, 0, 0, 1)
     
-        if px >= 0 and px < resolution and py >= 0 and py < (resolution + 1) // 2:
+        if px >= 0 and px < resolution and py >= 0 and py < resolution:
 
             for sca_cm_squared_per_g, density_spherical, scattering_phase_function in zip(sca_list, density_spherical_list, scattering_phase_function_list):
                 
@@ -1055,7 +1153,7 @@ def radiative_transfer_not_axisymmetric_reflection_symmetric(view_length, inclin
                 cubical_array[px, py, d] += increment
                 image_array[px, py, d] += increment * scattering_phase_function(scattering_angle)
 
-    print("Sending photons from the central source(s): ")
+    print("Tracing single scattered photons: ")
     
     for i in tqdm(range(theta_steps)):
         for j in range(1, distance_steps + 1):
@@ -1064,7 +1162,9 @@ def radiative_transfer_not_axisymmetric_reflection_symmetric(view_length, inclin
     
     image_array *= (pi / (2 * theta_steps)) * dphi
     cubical_array *= (pi / (2 * theta_steps)) * dphi
-    image_array[(resolution - 1) // 2, (resolution - 1) // 2, (depth - 1) // 2] += central_source
+
+    if include_central_source_self: 
+        image_array[(resolution - 1) // 2, (resolution - 1) // 2, (depth - 1) // 2] += central_source
 
     def propagate_any(I, x0, y0, z0, random_x, random_y, random_z, random_steps):
 
@@ -1081,10 +1181,10 @@ def radiative_transfer_not_axisymmetric_reflection_symmetric(view_length, inclin
             if x ** 2 + y ** 2 + z ** 2 >= view_length ** 2:
                 return 0, 0, 0, 0 # photon escapes
 
-            for ext_cm_squared_per_g, density_cartesian, source_funcion in zip(ext_list, density_cartesian_list, source_function_list):
+            for ext_cm_squared_per_g, density_cartesian, source_function_cur in zip(ext_list, density_cartesian_list, source_function_list):
         
                 k_v = ext_cm_squared_per_g * density_cartesian(x, y, z) # attenuation coefficient, units: cm^-1
-                j_v = source_function * k_v
+                j_v = source_function_cur * k_v
         
                 dI = -I_cur * k_v * ds_depth + j_v * ds_depth
                 I = I + dI
@@ -1110,7 +1210,8 @@ def radiative_transfer_not_axisymmetric_reflection_symmetric(view_length, inclin
             scattering_angle = vector_angle(x0, y0, z0, random_x, random_y, random_z)
 
             if len(scattering_phase_function_list) == 1:
-                
+
+                scattering_phase_function = scattering_phase_function_list[0] 
                 I = I * scattering_phase_function(scattering_angle)
 
             else: # compute a weighted average of the scattering phase functions
@@ -1180,10 +1281,10 @@ def radiative_transfer_not_axisymmetric_reflection_symmetric(view_length, inclin
             
             x, y, z = observer_to_cartesian(u, v, w - i * ds_depth)
 
-            for ext_cm_squared_per_g, density_cartesian, source_funcion in zip(ext_list, density_cartesian_list, source_function_list):
+            for ext_cm_squared_per_g, density_cartesian, source_function_cur in zip(ext_list, density_cartesian_list, source_function_list):
         
                 k_v = ext_cm_squared_per_g * density_cartesian(x, y, z) # attenuation coefficient, units: cm^-1
-                j_v = source_function * k_v
+                j_v = source_function_cur * k_v
     
                 dI = -I_cur * k_v * ds_depth + j_v * ds_depth
                 I = I + dI
@@ -1197,13 +1298,11 @@ def radiative_transfer_not_axisymmetric_reflection_symmetric(view_length, inclin
             for d in reversed(range(depth - 1)):
                 image_array[px, py, d] += propagate_los(image_array[px, py, d + 1], px, py, d)
 
+    image = np.transpose(image_array[:, :, 0], (1, 0))
+
     return image
 
-def radiative_transfer_general(view_length, inclination_degrees, resolution, 
-                       central_source, 
-                       density_spherical, density_cartesian, 
-                       sca_cm_squared_per_g, ext_cm_squared_per_g, source_function, scattering_phase_function, 
-                       depth, depth_substeps, distance_steps, distance_substeps, theta_steps, phi_steps, ms_count):
+def radiative_transfer_general(view_length, inclination_degrees, resolution, central_source, density_spherical, density_cartesian, sca_cm_squared_per_g, ext_cm_squared_per_g, source_function, scattering_phase_function, depth, depth_substeps, distance_steps, distance_substeps, theta_steps, phi_steps, ms_count, include_central_source_self):
 
     if isinstance(density_spherical, Callable):
         density_spherical_list = [density_spherical]
@@ -1305,10 +1404,10 @@ def radiative_transfer_general(view_length, inclination_degrees, resolution,
 
             I_cur = I
 
-            for ext_cm_squared_per_g, density_spherical, source_function in zip(ext_list, density_spherical_list, source_function_list):
+            for ext_cm_squared_per_g, density_spherical, source_function_cur in zip(ext_list, density_spherical_list, source_function_list):
     
                 k_v = ext_cm_squared_per_g * density_spherical(r + i * ds, theta, phi) # attenuation coefficient, units: cm^-1
-                j_v = source_function * k_v
+                j_v = source_function_cur * k_v
 
                 dI = -I_cur * k_v * ds + j_v * ds
                 I = I + dI
@@ -1333,6 +1432,8 @@ def radiative_transfer_general(view_length, inclination_degrees, resolution,
             for j in range(phi_steps)
         )
         return np.array(results).reshape(theta_steps, phi_steps, distance_steps + 1)
+
+    print("Sending photons from the central source(s). ")
     
     spherical_array = compute_spherical()
     cubical_array = np.zeros((resolution, resolution, depth))
@@ -1352,7 +1453,7 @@ def radiative_transfer_general(view_length, inclination_degrees, resolution,
     
         scattering_angle = vector_angle(u, v, w, 0, 0, 1)
     
-        if px >= 0 and px < resolution and py >= 0 and py < (resolution + 1) // 2:
+        if px >= 0 and px < resolution and py >= 0 and py < resolution:
 
             for sca_cm_squared_per_g, density_spherical, scattering_phase_function in zip(sca_list, density_spherical_list, scattering_phase_function_list):
                 
@@ -1360,7 +1461,7 @@ def radiative_transfer_general(view_length, inclination_degrees, resolution,
                 cubical_array[px, py, d] += increment # reserved for further scattering
                 image_array[px, py, d] += increment * scattering_phase_function(scattering_angle) # peel-off amount
 
-    print("Sending photons from the central source(s): ")
+    print("Tracing single scattered photons: ")
     
     for i in tqdm(range(theta_steps)):
         for j in range(1, distance_steps + 1):
@@ -1369,7 +1470,9 @@ def radiative_transfer_general(view_length, inclination_degrees, resolution,
     
     image_array *= (pi / theta_steps) * dphi
     cubical_array *= (pi / theta_steps) * dphi
-    image_array[(resolution - 1) // 2, (resolution - 1) // 2, (depth - 1) // 2] += central_source
+
+    if include_central_source_self: 
+        image_array[(resolution - 1) // 2, (resolution - 1) // 2, (depth - 1) // 2] += central_source
 
     def propagate_any(I, x0, y0, z0, random_x, random_y, random_z, random_steps):
 
@@ -1386,10 +1489,10 @@ def radiative_transfer_general(view_length, inclination_degrees, resolution,
             if x ** 2 + y ** 2 + z ** 2 >= view_length ** 2:
                 return 0, 0, 0, 0 # photon escapes
 
-            for ext_cm_squared_per_g, density_cartesian, source_funcion in zip(ext_list, density_cartesian_list, source_function_list):
+            for ext_cm_squared_per_g, density_cartesian, source_function_cur in zip(ext_list, density_cartesian_list, source_function_list):
         
                 k_v = ext_cm_squared_per_g * density_cartesian(x, y, z) # attenuation coefficient, units: cm^-1
-                j_v = source_function * k_v
+                j_v = source_function_cur * k_v
         
                 dI = -I_cur * k_v * ds_depth + j_v * ds_depth
                 I = I + dI
@@ -1415,7 +1518,8 @@ def radiative_transfer_general(view_length, inclination_degrees, resolution,
             scattering_angle = vector_angle(x0, y0, z0, random_x, random_y, random_z)
 
             if len(scattering_phase_function_list) == 1:
-                
+
+                scattering_phase_function = scattering_phase_function_list[0]
                 I = I * scattering_phase_function(scattering_angle)
 
             else: # compute a weighted average of the scattering phase functions
@@ -1485,10 +1589,10 @@ def radiative_transfer_general(view_length, inclination_degrees, resolution,
             
             x, y, z = observer_to_cartesian(u, v, w - i * ds_depth)
 
-            for ext_cm_squared_per_g, density_cartesian, source_funcion in zip(ext_list, density_cartesian_list, source_function_list):
+            for ext_cm_squared_per_g, density_cartesian, source_function_cur in zip(ext_list, density_cartesian_list, source_function_list):
         
                 k_v = ext_cm_squared_per_g * density_cartesian(x, y, z) # attenuation coefficient, units: cm^-1
-                j_v = source_function * k_v
+                j_v = source_function_cur * k_v
     
                 dI = -I_cur * k_v * ds_depth + j_v * ds_depth
                 I = I + dI
@@ -1501,6 +1605,8 @@ def radiative_transfer_general(view_length, inclination_degrees, resolution,
         for py in range(resolution):
             for d in reversed(range(depth - 1)):
                 image_array[px, py, d] += propagate_los(image_array[px, py, d + 1], px, py, d)
+
+    image = np.transpose(image_array[:, :, 0], (1, 0))
 
     return image
 
@@ -1570,6 +1676,8 @@ def radiative_transfer_v1(view_length, inclination_degrees, resolution, central_
             for i in range(theta_steps)
         )
         return np.array(results)
+
+    print("Sending photons from the central source(s). ")
     
     spherical_array = compute_spherical()
     cubical_array = np.zeros((resolution, (resolution + 1) // 2, depth))
@@ -1607,7 +1715,7 @@ def radiative_transfer_v1(view_length, inclination_degrees, resolution, central_
             cubical_array[px, py, d] += increment
             image_array[px, py, d] += increment * scattering_phase_function(scattering_angle)
 
-    print("Sending photons from the central source(s): ")
+    print("Tracing single scattered photons: ")
     
     for i in tqdm(range(theta_steps)):
         for j in range(1, distance_steps + 1):
