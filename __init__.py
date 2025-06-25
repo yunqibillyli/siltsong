@@ -435,10 +435,12 @@ def radiative_transfer_axisymmetric_reflection_symmetric(view_length, inclinatio
 
             I_cur = I
 
-            for ext_cm_squared_per_g, density_spherical, source_function_cur in zip(ext_list, density_spherical_list, source_function_list):
+            for ext_cm_squared_per_g, sca_cm_squared_per_g, density_spherical, source_function_cur in zip(ext_list, sca_list, density_spherical_list, source_function_list):
     
-                k_v = ext_cm_squared_per_g * density_spherical(r + i * ds, theta) # attenuation coefficient, units: cm^-1
-                j_v = source_function_cur * k_v
+                density_cur = density_spherical(r + i * ds, theta)
+                k_v = ext_cm_squared_per_g * density_cur # attenuation coefficient, units: cm^-1
+                k_v_abs = (ext_cm_squared_per_g - sca_cm_squared_per_g) * density_cur # scattered light is handled separately
+                j_v = source_function_cur * k_v_abs
 
                 dI = -I_cur * k_v * ds + j_v * ds
                 I = I + dI
@@ -536,10 +538,13 @@ def radiative_transfer_axisymmetric_reflection_symmetric(view_length, inclinatio
             if x ** 2 + y ** 2 + z ** 2 >= view_length ** 2:
                 return 0, 0, 0, 0 # photon escapes
 
-            for ext_cm_squared_per_g, density_cartesian, source_function_cur in zip(ext_list, density_cartesian_list, source_function_list):
+            for ext_cm_squared_per_g, sca_cm_squared_per_g, density_cartesian, source_function_cur in zip(ext_list, sca_list, density_cartesian_list, source_function_list):
         
-                k_v = ext_cm_squared_per_g * density_cartesian(x, y, z) # attenuation coefficient, units: cm^-1
-                j_v = source_function_cur * k_v
+                density_cur = density_cartesian(x, y, z)
+
+                k_v = ext_cm_squared_per_g * density_cur # attenuation coefficient, units: cm^-1
+                k_v_abs = (ext_cm_squared_per_g - sca_cm_squared_per_g) * density_cur
+                j_v = source_function_cur * k_v_abs
         
                 dI = -I_cur * k_v * ds_depth + j_v * ds_depth
                 I = I + dI
@@ -644,10 +649,13 @@ def radiative_transfer_axisymmetric_reflection_symmetric(view_length, inclinatio
             
             x, y, z = observer_to_cartesian(u, v, w - i * ds_depth)
 
-            for ext_cm_squared_per_g, density_cartesian, source_function_cur in zip(ext_list, density_cartesian_list, source_function_list):
+            for ext_cm_squared_per_g, sca_cm_squared_per_g, density_cartesian, source_function_cur in zip(ext_list, sca_list, density_cartesian_list, source_function_list):
         
-                k_v = ext_cm_squared_per_g * density_cartesian(x, y, z) # attenuation coefficient, units: cm^-1
-                j_v = source_function_cur * k_v
+                density_cur = density_cartesian(x, y, z)
+
+                k_v = ext_cm_squared_per_g * density_cur # attenuation coefficient, units: cm^-1
+                k_v_abs = (ext_cm_squared_per_g - sca_cm_squared_per_g) * density_cur
+                j_v = source_function_cur * k_v_abs
     
                 dI = -I_cur * k_v * ds_depth + j_v * ds_depth
                 I = I + dI
@@ -765,10 +773,13 @@ def radiative_transfer_axisymmetric_not_reflection_symmetric(view_length, inclin
 
             I_cur = I
 
-            for ext_cm_squared_per_g, density_spherical, source_function_cur in zip(ext_list, density_spherical_list, source_function_list):
+            for ext_cm_squared_per_g, sca_cm_squared_per_g, density_spherical, source_function_cur in zip(ext_list, sca_list, density_spherical_list, source_function_list):
     
-                k_v = ext_cm_squared_per_g * density_spherical(r + i * ds, theta) # attenuation coefficient, units: cm^-1
-                j_v = source_function_cur * k_v
+                density_cur = density_spherical(r + i * ds, theta)
+
+                k_v = ext_cm_squared_per_g * density_cur # attenuation coefficient, units: cm^-1
+                k_v_abs = (ext_cm_squared_per_g - sca_cm_squared_per_g) * density_cur
+                j_v = source_function_cur * k_v_abs
 
                 dI = -I_cur * k_v * ds + j_v * ds
                 I = I + dI
@@ -849,10 +860,13 @@ def radiative_transfer_axisymmetric_not_reflection_symmetric(view_length, inclin
             if x ** 2 + y ** 2 + z ** 2 >= view_length ** 2:
                 return 0, 0, 0, 0 # photon escapes
 
-            for ext_cm_squared_per_g, density_cartesian, source_function_cur in zip(ext_list, density_cartesian_list, source_function_list):
+            for ext_cm_squared_per_g, sca_cm_squared_per_g, density_cartesian, source_function_cur in zip(ext_list, sca_list, density_cartesian_list, source_function_list):
         
-                k_v = ext_cm_squared_per_g * density_cartesian(x, y, z) # attenuation coefficient, units: cm^-1
-                j_v = source_function_cur * k_v
+                density_cur = density_cartesian(x, y, z)
+
+                k_v = ext_cm_squared_per_g * density_cur # attenuation coefficient, units: cm^-1
+                k_v_abs = (ext_cm_squared_per_g - sca_cm_squared_per_g) * density_cur
+                j_v = source_function_cur * k_v_abs
         
                 dI = -I_cur * k_v * ds_depth + j_v * ds_depth
                 I = I + dI
@@ -957,10 +971,13 @@ def radiative_transfer_axisymmetric_not_reflection_symmetric(view_length, inclin
             
             x, y, z = observer_to_cartesian(u, v, w - i * ds_depth)
 
-            for ext_cm_squared_per_g, density_cartesian, source_function_cur in zip(ext_list, density_cartesian_list, source_function_list):
+            for ext_cm_squared_per_g, sca_cm_squared_per_g, density_cartesian, source_function_cur in zip(ext_list, sca_list, density_cartesian_list, source_function_list):
         
-                k_v = ext_cm_squared_per_g * density_cartesian(x, y, z) # attenuation coefficient, units: cm^-1
-                j_v = source_function_cur * k_v
+                density_cur = density_cartesian(x, y, z)
+
+                k_v = ext_cm_squared_per_g * density_cur # attenuation coefficient, units: cm^-1
+                k_v_abs = (ext_cm_squared_per_g - sca_cm_squared_per_g) * density_cur
+                j_v = source_function_cur * k_v_abs
     
                 dI = -I_cur * k_v * ds_depth + j_v * ds_depth
                 I = I + dI
@@ -1079,10 +1096,13 @@ def radiative_transfer_not_axisymmetric_reflection_symmetric(view_length, inclin
 
             I_cur = I
 
-            for ext_cm_squared_per_g, density_spherical, source_function_cur in zip(ext_list, density_spherical_list, source_function_list):
+            for ext_cm_squared_per_g, sca_cm_squared_per_g, density_spherical, source_function_cur in zip(ext_list, sca_list, density_spherical_list, source_function_list):
     
-                k_v = ext_cm_squared_per_g * density_spherical(r + i * ds, theta, phi) # attenuation coefficient, units: cm^-1
-                j_v = source_function_cur * k_v
+                density_cur = density_spherical(r + i * ds, theta, phi)
+
+                k_v = ext_cm_squared_per_g * density_cur # attenuation coefficient, units: cm^-1
+                k_v_abs = (ext_cm_squared_per_g - sca_cm_squared_per_g) * density_cur
+                j_v = source_function_cur * k_v_abs
 
                 dI = -I_cur * k_v * ds + j_v * ds
                 I = I + dI
@@ -1181,10 +1201,13 @@ def radiative_transfer_not_axisymmetric_reflection_symmetric(view_length, inclin
             if x ** 2 + y ** 2 + z ** 2 >= view_length ** 2:
                 return 0, 0, 0, 0 # photon escapes
 
-            for ext_cm_squared_per_g, density_cartesian, source_function_cur in zip(ext_list, density_cartesian_list, source_function_list):
+            for ext_cm_squared_per_g, sca_cm_squared_per_g, density_cartesian, source_function_cur in zip(ext_list, sca_list, density_cartesian_list, source_function_list):
         
-                k_v = ext_cm_squared_per_g * density_cartesian(x, y, z) # attenuation coefficient, units: cm^-1
-                j_v = source_function_cur * k_v
+                density_cur = density_cartesian(x, y, z)
+
+                k_v = ext_cm_squared_per_g * density_cur # attenuation coefficient, units: cm^-1
+                k_v_abs = (ext_cm_squared_per_g - sca_cm_squared_per_g) * density_cur
+                j_v = source_function_cur * k_v_abs
         
                 dI = -I_cur * k_v * ds_depth + j_v * ds_depth
                 I = I + dI
@@ -1281,10 +1304,13 @@ def radiative_transfer_not_axisymmetric_reflection_symmetric(view_length, inclin
             
             x, y, z = observer_to_cartesian(u, v, w - i * ds_depth)
 
-            for ext_cm_squared_per_g, density_cartesian, source_function_cur in zip(ext_list, density_cartesian_list, source_function_list):
+            for ext_cm_squared_per_g, sca_cm_squared_per_g, density_cartesian, source_function_cur in zip(ext_list, sca_list, density_cartesian_list, source_function_list):
         
-                k_v = ext_cm_squared_per_g * density_cartesian(x, y, z) # attenuation coefficient, units: cm^-1
-                j_v = source_function_cur * k_v
+                density_cur = density_cartesian(x, y, z)
+
+                k_v = ext_cm_squared_per_g * density_cur # attenuation coefficient, units: cm^-1
+                k_v_abs = (ext_cm_squared_per_g - sca_cm_squared_per_g) * density_cur
+                j_v = source_function_cur * k_v_abs
     
                 dI = -I_cur * k_v * ds_depth + j_v * ds_depth
                 I = I + dI
@@ -1404,10 +1430,13 @@ def radiative_transfer_general(view_length, inclination_degrees, resolution, cen
 
             I_cur = I
 
-            for ext_cm_squared_per_g, density_spherical, source_function_cur in zip(ext_list, density_spherical_list, source_function_list):
+            for ext_cm_squared_per_g, sca_cm_squared_per_g, density_spherical, source_function_cur in zip(ext_list, sca_list, density_spherical_list, source_function_list):
     
-                k_v = ext_cm_squared_per_g * density_spherical(r + i * ds, theta, phi) # attenuation coefficient, units: cm^-1
-                j_v = source_function_cur * k_v
+                density_cur = density_spherical(r + i * ds, theta, phi)
+
+                k_v = ext_cm_squared_per_g * density_cur # attenuation coefficient, units: cm^-1
+                k_v_abs = (ext_cm_squared_per_g - sca_cm_squared_per_g) * density_cur
+                j_v = source_function_cur * k_v_abs
 
                 dI = -I_cur * k_v * ds + j_v * ds
                 I = I + dI
@@ -1489,10 +1518,13 @@ def radiative_transfer_general(view_length, inclination_degrees, resolution, cen
             if x ** 2 + y ** 2 + z ** 2 >= view_length ** 2:
                 return 0, 0, 0, 0 # photon escapes
 
-            for ext_cm_squared_per_g, density_cartesian, source_function_cur in zip(ext_list, density_cartesian_list, source_function_list):
+            for ext_cm_squared_per_g, sca_cm_squared_per_g, density_cartesian, source_function_cur in zip(ext_list, sca_list, density_cartesian_list, source_function_list):
         
-                k_v = ext_cm_squared_per_g * density_cartesian(x, y, z) # attenuation coefficient, units: cm^-1
-                j_v = source_function_cur * k_v
+                density_cur = density_cartesian(x, y, z)
+
+                k_v = ext_cm_squared_per_g * density_cur # attenuation coefficient, units: cm^-1
+                k_v_abs = (ext_cm_squared_per_g - sca_cm_squared_per_g) * density_cur
+                j_v = source_function_cur * k_v_abs
         
                 dI = -I_cur * k_v * ds_depth + j_v * ds_depth
                 I = I + dI
@@ -1589,10 +1621,13 @@ def radiative_transfer_general(view_length, inclination_degrees, resolution, cen
             
             x, y, z = observer_to_cartesian(u, v, w - i * ds_depth)
 
-            for ext_cm_squared_per_g, density_cartesian, source_function_cur in zip(ext_list, density_cartesian_list, source_function_list):
+            for ext_cm_squared_per_g, sca_cm_squared_per_g, density_cartesian, source_function_cur in zip(ext_list, sca_list, density_cartesian_list, source_function_list):
         
-                k_v = ext_cm_squared_per_g * density_cartesian(x, y, z) # attenuation coefficient, units: cm^-1
-                j_v = source_function_cur * k_v
+                density_cur = density_cartesian(x, y, z)
+
+                k_v = ext_cm_squared_per_g * density_cur # attenuation coefficient, units: cm^-1
+                k_v_abs = (ext_cm_squared_per_g - sca_cm_squared_per_g) * density_cur
+                j_v = source_function_cur * k_v_abs
     
                 dI = -I_cur * k_v * ds_depth + j_v * ds_depth
                 I = I + dI
@@ -1652,8 +1687,11 @@ def radiative_transfer_v1(view_length, inclination_degrees, resolution, central_
 
         for i in range(distance_substeps):
     
-            k_v = ext_cm_squared_per_g * density_spherical(r + i * ds, theta) # attenuation coefficient, units: cm^-1
-            j_v = source_function * k_v
+            density_cur = density_spherical(r + i * ds, theta)
+
+            k_v = ext_cm_squared_per_g * density_cur # attenuation coefficient, units: cm^-1
+            k_v_abs = (ext_cm_squared_per_g - sca_cm_squared_per_g) * density_cur
+            j_v = source_function * k_v_abs
 
             dI = -I * k_v * ds + j_v * ds
             I = I + dI
@@ -1741,8 +1779,11 @@ def radiative_transfer_v1(view_length, inclination_degrees, resolution, central_
             if x ** 2 + y ** 2 + z ** 2 >= view_length ** 2:
                 return 0, 0, 0, 0 # photon escapes
         
-            k_v = ext_cm_squared_per_g * density_cartesian(x, y, z) # attenuation coefficient, units: cm^-1
-            j_v = source_function * k_v
+            density_cur = density_cartesian(x, y, z)
+
+            k_v = ext_cm_squared_per_g * density_cur # attenuation coefficient, units: cm^-1
+            k_v_abs = (ext_cm_squared_per_g - sca_cm_squared_per_g) * density_cur
+            j_v = source_function * k_v_abs
     
             dI = -I * k_v * ds_depth + j_v * ds_depth
             I = I + dI
@@ -1816,8 +1857,11 @@ def radiative_transfer_v1(view_length, inclination_degrees, resolution, central_
             
             x, y, z = observer_to_cartesian(u, v, w - i * ds_depth)
         
-            k_v = ext_cm_squared_per_g * density_cartesian(x, y, z) # attenuation coefficient, units: cm^-1
-            j_v = source_function * k_v
+            density_cur = density_cartesian(x, y, z)
+
+            k_v = ext_cm_squared_per_g * density_cur # attenuation coefficient, units: cm^-1
+            k_v_abs = (ext_cm_squared_per_g - sca_cm_squared_per_g) * density_cur
+            j_v = source_function * k_v_abs
     
             dI = -I * k_v * ds_depth + j_v * ds_depth
             I = I + dI
