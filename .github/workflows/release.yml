@@ -11,6 +11,7 @@ on:
 env:
   PACKAGE_NAME: "siltsong"
   OWNER: "yunqibillyli"
+  TAP_NAME: "siltsong"
 
 jobs:
   details:
