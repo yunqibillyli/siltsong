@@ -77,21 +77,22 @@ jobs:
         with:
           python-version: "3.13"
 
-      - name: Install Poetry
+      - name: Install Hatchling
         run: |
-          curl -sSL https://install.python-poetry.org | python3 -
-          echo "$HOME/.local/bin" >> $GITHUB_PATH
+          pip install --upgrade pip
+          pip install hatch
 
-      - name: Set project version with Poetry
+      - name: Set project version with Hatch
         run: |
-          poetry version ${{ needs.details.outputs.new_version }}
+          hatch version ${{ needs.details.outputs.new_version }}
 
-      - name: Install dependencies
-        run: poetry install --sync --no-interaction
+      - name: Install dependencies (optional)
+        run: |
+          pip install .[dev]  # Adjust extras if needed
 
       - name: Build source and wheel distribution
         run: |
-          poetry build
+          hatch build
 
       - name: Upload artifacts
         uses: actions/upload-artifact@v4
