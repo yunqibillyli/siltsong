@@ -663,11 +663,19 @@ def radiative_transfer_axisymmetric_reflection_symmetric(view_length, inclinatio
         return I
 
     print("Performing peel-off: ")
-    
-    for px in tqdm(range(resolution)):
-        for py in range((resolution + 1) // 2):
-            for d in reversed(range(depth - 1)):
-                image_array[px, py, d] += propagate_los(image_array[px, py, d + 1], px, py, d)
+
+    px_py_list = list(product(range(resolution), range((resolution + 1) // 2)))
+    n_px_py = len(px_py_list)
+
+    def propagate_pixel(px, py):
+        for d in reversed(range(depth - 1)):
+            image_array[px, py, d] += propagate_los(image_array[px, py, d + 1],px, py, d)
+
+    with parallel_backend('threading', n_jobs = -1):
+    Parallel()(
+        delayed(propagate_pixel)(px, py)
+        for px, py in tqdm(px_py_list, total = n_px_py)
+    )
 
     image = np.vstack((np.transpose(image_array[:, :, 0], (1, 0)), np.transpose(image_array[:, :, 0], (1, 0))[:-1, :][::-1, :]))
 
@@ -985,11 +993,19 @@ def radiative_transfer_axisymmetric_not_reflection_symmetric(view_length, inclin
         return I
 
     print("Performing peel-off: ")
-    
-    for px in tqdm(range(resolution)):
-        for py in range((resolution + 1) // 2):
-            for d in reversed(range(depth - 1)):
-                image_array[px, py, d] += propagate_los(image_array[px, py, d + 1], px, py, d)
+
+    px_py_list = list(product(range(resolution), range((resolution + 1) // 2)))
+    n_px_py = len(px_py_list)
+
+    def propagate_pixel(px, py):
+        for d in reversed(range(depth - 1)):
+            image_array[px, py, d] += propagate_los(image_array[px, py, d + 1],px, py, d)
+
+    with parallel_backend('threading', n_jobs = -1):
+    Parallel()(
+        delayed(propagate_pixel)(px, py)
+        for px, py in tqdm(px_py_list, total = n_px_py)
+    )
 
     image = np.vstack((np.transpose(image_array[:, :, 0], (1, 0)), np.transpose(image_array[:, :, 0], (1, 0))[:-1, :][::-1, :]))
 
@@ -1318,11 +1334,19 @@ def radiative_transfer_not_axisymmetric_reflection_symmetric(view_length, inclin
         return I
 
     print("Performing peel-off: ")
-    
-    for px in tqdm(range(resolution)):
-        for py in range(resolution):
-            for d in reversed(range(depth - 1)):
-                image_array[px, py, d] += propagate_los(image_array[px, py, d + 1], px, py, d)
+
+    px_py_list = list(product(range(resolution), range((resolution + 1) // 2)))
+    n_px_py = len(px_py_list)
+
+    def propagate_pixel(px, py):
+        for d in reversed(range(depth - 1)):
+            image_array[px, py, d] += propagate_los(image_array[px, py, d + 1],px, py, d)
+
+    with parallel_backend('threading', n_jobs = -1):
+    Parallel()(
+        delayed(propagate_pixel)(px, py)
+        for px, py in tqdm(px_py_list, total = n_px_py)
+    )
 
     image = np.transpose(image_array[:, :, 0], (1, 0))
 
@@ -1635,11 +1659,19 @@ def radiative_transfer_general(view_length, inclination_degrees, resolution, cen
         return I
 
     print("Performing peel-off: ")
-    
-    for px in tqdm(range(resolution)):
-        for py in range(resolution):
-            for d in reversed(range(depth - 1)):
-                image_array[px, py, d] += propagate_los(image_array[px, py, d + 1], px, py, d)
+
+    px_py_list = list(product(range(resolution), range((resolution + 1) // 2)))
+    n_px_py = len(px_py_list)
+
+    def propagate_pixel(px, py):
+        for d in reversed(range(depth - 1)):
+            image_array[px, py, d] += propagate_los(image_array[px, py, d + 1],px, py, d)
+
+    with parallel_backend('threading', n_jobs = -1):
+    Parallel()(
+        delayed(propagate_pixel)(px, py)
+        for px, py in tqdm(px_py_list, total = n_px_py)
+    )
 
     image = np.transpose(image_array[:, :, 0], (1, 0))
 
@@ -1869,11 +1901,19 @@ def radiative_transfer_v1(view_length, inclination_degrees, resolution, central_
         return I
 
     print("Performing peel-off: ")
-    
-    for px in tqdm(range(resolution)):
-        for py in range((resolution + 1) // 2):
-            for d in reversed(range(depth - 1)):
-                image_array[px, py, d] += propagate_los(image_array[px, py, d + 1], px, py, d)
+
+    px_py_list = list(product(range(resolution), range((resolution + 1) // 2)))
+    n_px_py = len(px_py_list)
+
+    def propagate_pixel(px, py):
+        for d in reversed(range(depth - 1)):
+            image_array[px, py, d] += propagate_los(image_array[px, py, d + 1],px, py, d)
+
+    with parallel_backend('threading', n_jobs = -1):
+    Parallel()(
+        delayed(propagate_pixel)(px, py)
+        for px, py in tqdm(px_py_list, total = n_px_py)
+    )
 
     image = np.vstack((np.transpose(image_array[:, :, 0], (1, 0)), np.transpose(image_array[:, :, 0], (1, 0))[:-1, :][::-1, :]))
 
